@@ -24,7 +24,7 @@
     }
   ],
   "indexerUrl": "",
-  "referenceApiUrl": "http://127.0.0.1:8787",
+  "referenceApiUrl": "https://mandate.ibxlab.com",
   "marketApiUrl": "https://api.coingecko.com/api/v3/simple/price?ids=monad&vs_currencies=usd",
   "llm": {
     "enabled": true,
