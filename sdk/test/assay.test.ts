@@ -64,6 +64,11 @@ describe("gradeStatus", () => {
     expect(gradeStatus(grade({ t: NOW - 8n * 86400n }), { now: NOW })).toBe("unknown");
   });
 
+  it("without a reference, 0/32 fails and a low lower bound only warns", () => {
+    expect(gradeStatus(grade({ passed: 0, total: 32, ciLowBps: 0, ciHighBps: 1072 }), { now: NOW })).toBe("fail");
+    expect(gradeStatus(grade({ passed: 28, total: 32, ciLowBps: 7193, ciHighBps: 9504 }), { now: NOW })).toBe("warn");
+  });
+
   it("warns under 30 samples, fails only when clearly below the reference", () => {
     expect(gradeStatus(grade({ passed: 6, total: 6 }), { now: NOW })).toBe("warn");
     expect(gradeStatus(grade({ ciHighBps: 8000 }), { now: NOW, reference: grade({ ciLowBps: 8500 }) })).toBe("fail");

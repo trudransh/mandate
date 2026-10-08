@@ -93,10 +93,16 @@ export const verifierRegistryAbi = [
  * `unknown`: no grade, or older than 7 days. `fail`: the host's best case (interval high) is below the
  * reference's worst case (interval low). `warn`: fewer than 30 samples. Otherwise `pass`.
  */
+/** Without a reference grade, a host is held to this absolute floor on its 95% interval (80%). */
+export const GRADE_FLOOR_BPS = 8000;
+
 export function gradeStatus(grade: InferenceGrade | null | undefined, opts: { now: bigint | number; reference?: InferenceGrade | null }): GradeStatus {
   if (!grade || BigInt(opts.now) - grade.t > GRADE_MAX_AGE_SECONDS) return "unknown";
-  if (opts.reference && grade.ciHighBps < opts.reference.ciLowBps) return "fail";
+  // With a reference, fail below its worst case. Without one, a host that failed every check must not read "pass".
+  const floor = opts.reference ? opts.reference.ciLowBps : GRADE_FLOOR_BPS;
+  if (grade.ciHighBps < floor) return "fail";
   if (grade.total < GRADE_MIN_SAMPLES) return "warn";
+  if (!opts.reference && grade.ciLowBps < GRADE_FLOOR_BPS) return "warn";
   return "pass";
 }
 
